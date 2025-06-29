@@ -59,3 +59,7 @@ $WAR_i^{context} = \frac{\sum_j r_{i,j} - R^{rep}_{i}}{10}$
 | Context WAR | Yes                   | GAM-predicted runs $\times \alpha$ | GAM (spline + factors) |
 
 Context-adjusted WAR is a more robust, fair comparison of batting value — especially across roles, eras, and match phases.
+
+### Estimates
+
+We use data from https://cricsheet.org/downloads/ to estimate WAR.
