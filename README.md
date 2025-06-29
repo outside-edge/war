@@ -1,21 +1,63 @@
-### WAR
+## Understanding Batting WAR in Cricket: Naive vs. Context-Adjusted Approaches
 
-We develop a WAR metric for cricketers. 
+### What is WAR?
 
-### Concepts and Definitions
+WAR stands for **Wins Above Replacement**. Originally developed in baseball, it quantifies how many more wins a player contributes relative to a "replacement-level" player — a hypothetical freely available, average substitute. In cricket, WAR can be adapted to estimate how many wins a batter contributes over a replacement-level batter, based on their run-scoring ability.
 
-* Replacement-Level Player: A replacement-level player represents the skill and performance level of a readily available, below-average player who can fill in at short notice. Our instantiations could be:
+### 1. Naive Batting WAR
 
-	* Batting: The bottom 20-25% of batters for a particular position in a particular format in terms of runs scored per match and strike rate. (For tests, we ignore the strike rate.)
+The naive approach to Batting WAR assumes all run-scoring opportunities are equal. It focuses purely on aggregate statistics like total runs, strike rate, and balls faced.
 
-	Use to derive Batting Runs Above Replacement (BRAR). BRAR = Player’s Total Runs − Replacement-Level Runs
+#### Formula:
 
-	* Bowling: The bottom 20-25% of bowlers (of a specific kind perhaps) in a particular format in terms of bowling economy, and average.
+Let:
 
-	Use to derive Bowling Runs Above Replacement (BoRAR). 
+* $R_i$: total runs scored by player $i$
+* $B_i$: balls faced by player $i$
+* $SR_{rep}$: replacement-level strike rate (e.g., 20th percentile of observed SRs)
+* $R_{rep, i} = B_i \times \frac{SR_{rep}}{100}$: expected runs for replacement-level batter
 
-	* No metrics for fielding as none are widely available (except for crude metrics for wicketkeepers, which are not super diagnostic).
+Then:
+$WAR_i^{naive} = \frac{R_i - R_{rep, i}}{10}$
 
-* Runs Per Win (RPW)
+Here, 10 runs are heuristically assumed to be worth 1 win in ODI cricket.
 
-* WAR = (BRAR + BoRAR)/RPW
+### 2. Context-Adjusted Batting WAR
+
+The naive model assumes equal opportunity for all balls, which is unrealistic. Batters face vastly different conditions depending on match context (e.g., powerplay vs death overs, era, batting position).
+
+To address this, we model **expected runs per ball** as a function of context using a **Generalized Additive Model (GAM)**.
+
+#### Features used:
+
+* $t$: over number (continuous)
+* $p$: inferred batting position (categorical)
+* $y$: year (categorical)
+
+#### Model:
+
+$\mathbb{E}[r_{i,j}] = f_1(t_{i,j}) + f_2(p_{i,j}) + f_3(y_{i,j})$
+Where:
+
+* $r_{i,j}$: runs scored by player $i$ on ball $j$
+* $f_1$: smooth spline on over
+* $f_2, f_3$: factor effects for position and year
+
+#### Replacement Adjustment:
+
+To define a replacement-level expectation, we scale the predicted expected runs:
+$R^{rep}_{i} = \alpha \cdot \sum_j \hat{r}_{i,j} \quad \text{where } \alpha < 1$
+(e.g., $\alpha = 0.85$)
+
+#### Context-Adjusted WAR:
+
+$WAR_i^{context} = \frac{\sum_j r_{i,j} - R^{rep}_{i}}{10}$
+
+### Summary
+
+| Approach    | Accounts for Context? | Replacement Defined By             | Model Used             |
+| ----------- | --------------------- | ---------------------------------- | ---------------------- |
+| Naive WAR   | No                    | Fixed strike rate (percentile)     | None (formulaic)       |
+| Context WAR | Yes                   | GAM-predicted runs $\times \alpha$ | GAM (spline + factors) |
+
+Context-adjusted WAR is a more robust, fair comparison of batting value — especially across roles, eras, and match phases.
