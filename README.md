@@ -1,4 +1,4 @@
-## WAR Scores 
+## Cricket WAR
 
 WAR stands for **Wins Above Replacement**. Originally developed in baseball, it quantifies how many more wins a player contributes relative to a "replacement-level" player — a hypothetical freely available, average substitute. In cricket, WAR can be adapted to estimate how many wins a batter contributes over a replacement-level batter, based on their run-scoring ability.
 
