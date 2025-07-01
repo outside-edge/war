@@ -4,6 +4,9 @@ WAR stands for **Wins Above Replacement**. Originally developed in baseball, it 
 
 We construct both **batting WAR** and **bowling WAR**, and split all calculations by gender (men's and women's ODIs), acknowledging the substantial differences in scoring patterns and match contexts.
 
+![ODI Batting WAR Men](readme/odi_batting_men.png)
+![ODI Batting WAR Women](readme/odi_batting_women.png)
+
 ---
 
 ### 1. Naive Batting WAR
